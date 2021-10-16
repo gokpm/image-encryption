@@ -3,20 +3,19 @@ import json
 import cv2 as cv
 import numpy as np
 from random import shuffle
-import sys
-np.set_printoptions(threshold=sys.maxsize)
 
 class Image:
     def __init__(self, path: str)-> None:
         self.path = path
-        self.levels = 256
-        self.values = np.arange(self.levels, dtype = np.uint8)
         self.img = cv.imread(self.path)
         self.rows, self.columns, self.channels = self.img.shape
+        self.levels = 256
+        self.values = np.arange(self.levels, dtype = np.uint8)
+        self.template = np.zeros((self.rows, self.columns, self.channels), dtype = np.uint8)
         return
 
     def encrypt(self)-> None:
-        self.encrypted = np.zeros((self.rows, self.columns, self.channels), dtype = np.uint8)
+        self.encrypted = np.copy(self.template)
         self.key = Database(os.path.splitext(self.path)[0] + '_key' + '.json')
         self.key.data = np.zeros((self.rows, self.columns, self.levels), dtype = np.uint8)
         
@@ -32,7 +31,7 @@ class Image:
         return
 
     def decrypt(self)-> None:
-        self.decrypted = np.zeros((self.rows, self.columns, self.channels), dtype = np.uint8)
+        self.decrypted = np.copy(self.template)
         self.name = (os.path.splitext(self.path)[0].split('_', 1))[0]
         self.key = Database(self.name + '_key' + '.json')
         
@@ -52,6 +51,7 @@ class Database:
             self.read()
         else:
             self.write([])
+        return
             
     def read(self)-> None:
         with open(self.path, 'r') as file:
@@ -65,6 +65,10 @@ class Database:
         return
 
 def main()-> None:
+    a = Image(r'photograph.jpg')
+    a.encrypt()
+    b = Image(r'photograph_encrypted.tif')
+    b.decrypt()
     return
 
 if __name__ == '__main__':

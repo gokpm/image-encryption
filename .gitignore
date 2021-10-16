@@ -139,3 +139,4 @@ cython_debug/
 
 *.json
 *.jpg
+*.tif
